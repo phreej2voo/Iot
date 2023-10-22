@@ -150,7 +150,7 @@ class Dispatcher
     {
         Runtime::enableCoroutine();
         $this->connect();//mysql数据库连接
-        $this->outputMsg = sprintf('【%s】塔石等离子机物联网设备TCP分发服务, ', date('Y-m-d H:i:s'));
+        $this->outputMsg = sprintf('【%s】物联网设备TCP分发服务, ', date('Y-m-d H:i:s'));
     }
 
     /**
@@ -320,7 +320,7 @@ class Dispatcher
         /** @var  $date */
         $date = date('Y-m-d H:i:s');
         $this->sql = sprintf("INSERT INTO %s (clientId, data, createdAt, updatedAt) VALUES(%d, %s, %s, %s)",
-            'oppay_device_log', $clientId, "'{$data}'", "'{$date}'", "'{$date}'");
+            'iot_device_log', $clientId, "'{$data}'", "'{$date}'", "'{$date}'");
 
         $this->insertOrUpdate($this->sql);
     }
@@ -335,7 +335,7 @@ class Dispatcher
         /** @var  $date */
         $date = date('Y-m-d H:i:s');
         $this->sql = sprintf("UPDATE %s SET online=%d,updatedAt=%s WHERE clientId=%d",
-                'oppay_device', self::OFFLINE, "'{$date}'", $clientId);
+                'iot_device', self::OFFLINE, "'{$date}'", $clientId);
 
         $this->insertOrUpdate($this->sql);
     }
@@ -364,7 +364,7 @@ class Dispatcher
     {
         /** @var  $sql */
         $sql = sprintf('SELECT %s FROM %s WHERE `reqsn` = %s',
-            'trxstatus,productId,isSuccess', 'oppay_payment', "'{$outTradeNo}'");
+            'trxstatus,productId,isSuccess', 'iot_payment', "'{$outTradeNo}'");
 
         return $this->selectRow($sql);
     }
@@ -378,7 +378,7 @@ class Dispatcher
     {
         /** @var  $sql */
         $sql = sprintf('SELECT %s FROM %s WHERE `id` = %d',
-            'bianhao', 'oppay_product', $id);
+            'bianhao', 'iot_product', $id);
 
         return $this->selectRow($sql);
     }
@@ -392,7 +392,7 @@ class Dispatcher
     {
         /** @var  $sql */
         $sql = sprintf('SELECT %s FROM %s WHERE `deviceId` = %s',
-            'deviceId,clientId', 'oppay_device', "'$deviceId'");
+            'deviceId,clientId', 'iot_device', "'$deviceId'");
 
         return $this->selectRow($sql);
     }
@@ -406,7 +406,7 @@ class Dispatcher
     {
         /** @var  $sql */
         $sql = sprintf("SELECT %s FROM %s WHERE `clientId` = %d AND `status` = %d ORDER BY `id` DESC",
-            'id', 'oppay_dispatch_log', $clientId, static::FAIL);
+            'id', 'iot_dispatch_log', $clientId, static::FAIL);
 
         return $this->selectRow($sql);
     }
@@ -420,7 +420,7 @@ class Dispatcher
     {
         /** @var  $sql */
         $sql = sprintf('SELECT %s FROM %s WHERE `clientId` = %d',
-            'online', 'oppay_device', $clientId);
+            'online', 'iot_device', $clientId);
 
         return $this->selectRow($sql);
     }
@@ -451,7 +451,7 @@ class Dispatcher
     {
         /** @var  $sql */
         $sql = sprintf('SELECT %s FROM %s WHERE `outTradeNo` = %s AND `deviceId` = %s AND status = %d',
-            'id', 'oppay_dispatch_log', "'$outTradeNo'", "'$deviceId'", static::SUCCESS);
+            'id', 'iot_dispatch_log', "'$outTradeNo'", "'$deviceId'", static::SUCCESS);
 
         return !!$this->selectRow($sql);
     }
@@ -465,7 +465,7 @@ class Dispatcher
     {
         /** @var  $sql */
         $sql = sprintf('SELECT %s FROM %s WHERE `id` = %d',
-            'status', 'oppay_dispatch_log', $id);
+            'status', 'iot_dispatch_log', $id);
         /** @var  $dispatch */
         $dispatch = $this->selectRow($sql);
 
@@ -473,7 +473,7 @@ class Dispatcher
             /** @var  $date */
             $date = date('Y-m-d H:i:s');
             $this->sql = sprintf("UPDATE %s SET status=%d,updatedAt=%s WHERE `id` = %d",
-                'oppay_dispatch_log', static::SUCCESS, "'{$date}'", $id);
+                'iot_dispatch_log', static::SUCCESS, "'{$date}'", $id);
 
             if ($this->insertOrUpdate($this->sql)) {
                 $this->status = static::SUCCESS;
@@ -494,7 +494,7 @@ class Dispatcher
         /** @var  $date */
         $date = date('Y-m-d H:i:s');
         $this->sql = sprintf("INSERT INTO %s (`outTradeNo`, `deviceId`, `clientId`, `status`, `createdAt`, `updatedAt`) VALUES(%s, %s, %s, %d, %s, %s)",
-            'oppay_dispatch_log', "'{$outTradeNo}'", $deviceId, $clientId, $status, "'{$date}'", "'{$date}'");
+            'iot_dispatch_log', "'{$outTradeNo}'", $deviceId, $clientId, $status, "'{$date}'", "'{$date}'");
 
         $this->insertOrUpdate($this->sql);
     }
@@ -514,11 +514,11 @@ class Dispatcher
 
         if (!$device) {
             $this->sql = sprintf('INSERT INTO %s (deviceId, clientId, online, createdAt, updatedAt) VALUES(%s, %d, %d, %s, %s)',
-                'oppay_device', "'{$deviceId}'", $clientId, self::ONLINE, "'{$date}'", "'{$date}'");
+                'iot_device', "'{$deviceId}'", $clientId, self::ONLINE, "'{$date}'", "'{$date}'");
         }
         if (isset($device['clientId']) && $clientId != intval($device['clientId'])) {
             $this->sql = sprintf("UPDATE %s SET clientId=%d,online=%d,updatedAt=%s WHERE deviceId=%s",
-                'oppay_device', $clientId, self::ONLINE, "'{$date}'", "'{$deviceId}'");
+                'iot_device', $clientId, self::ONLINE, "'{$date}'", "'{$deviceId}'");
         }
 
         if (!is_null($this->sql)) {
@@ -533,7 +533,7 @@ class Dispatcher
      */
     private function isDeviceModel(string $data):bool
     {
-        return strlen($data) == 15 && is_numeric($data) && strlen($data) == strlen(intval($data));
+        return strlen($data) == 15 && is_numeric($data);
     }
 
     /**
@@ -624,4 +624,4 @@ class TcpClient
     }
 }
 
-(new TcpClient())->tcpClientCall('Welcome To My Life');
+(new TcpClient())->tcpClientCall('Welcome To My Life...');
